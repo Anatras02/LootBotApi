@@ -2,7 +2,6 @@ import requests
 from munch import munchify
 
 class Error500(Exception):
-    """Raised when the input value is too small"""
     pass
 
 
