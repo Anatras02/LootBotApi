@@ -2,11 +2,12 @@
 This is an API wrapper for Loot Bot (https://telegra.ph/Guida-alle-LootBot-API-04-06)
 
 # Guide
-1. Clone the repository and put it in your code directory
-2. Import the library
-`from LootBotApi import LootBotApi`
-3. Create the object `api = LootBotApi(TOKEN)` --> the token can be found using the command /token on https://t.me/lootplusbot
+## Download from PyPi
+1. `pip install LootBotApi`
+2. `import LootBotApi`
+3. `api = LootBotApi(TOKEN)` --> the token can be found using the command /token on https://t.me/lootplusbot
 4. Call the methods from the object created above
+
 
 # Methods
 Most of this methods will return a list of Munch objects.
