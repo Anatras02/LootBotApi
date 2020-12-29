@@ -4,7 +4,7 @@ This is an API wrapper for Loot Bot (https://telegra.ph/Guida-alle-LootBot-API-0
 # Guide
 ## Download from PyPi
 1. `pip install LootBotApi`
-2. `import LootBotApi`
+2. `from LootBotApi import LootBotApi`
 3. `api = LootBotApi(TOKEN)` --> the token can be found using the command /token on https://t.me/lootplusbot
 4. Call the methods from the object created above
 
