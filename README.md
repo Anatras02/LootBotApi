@@ -2,10 +2,6 @@
 This is an API wrapper for Loot Bot (https://telegra.ph/Guida-alle-LootBot-API-04-06)
 
 # Guide
-## PyPi
-`pip install LootBotApi`
-https://pypi.org/project/LootBotApi/
-## Clone the repo
 1. Clone the repository and put it in your code directory
 2. Import the library
 `from LootBotApi import LootBotApi`
@@ -13,8 +9,8 @@ https://pypi.org/project/LootBotApi/
 4. Call the methods from the object created above
 
 # Methods
-All the attributes of this methods can be accesed either as dict keys or object attributes.
-
+Most of this methods will return a list of Munch objects.
+This means that the attributes of the result can either be accessed as dictionary keys or object attributes
 ## Items
 * `get_items(rarity = None)` It returns all the items in the game, if rarity is passed it returns all the items of that rarity
 * `get_item(item)` It returns the info about a given item
@@ -29,7 +25,7 @@ print(api.get_item(363).name) #Meccanismo di Ferro
 * `get_players()` It returns all the players of LootBot
 * `get_player(player)` It returns the info about the player
 
-## Crafting 
+## Crafting
 * `get_crafts()` It returns all the crafts in the game
 * `get_craft_needed(item_id)` It returns the items requested to craft the item
 * `get_craft_used(item_id)` It returns the item that you can craft using the item
@@ -37,7 +33,7 @@ print(api.get_item(363).name) #Meccanismo di Ferro
 items = api.get_craft_needed(363)
 for item in items:
   print(item.name)
-  
+
 #Perno
 #Meccanismo di Legno
 #Ferro
@@ -58,4 +54,3 @@ for item in items:
 
 ## Ricerche
 * `get_searches(quantity)` It returns the searches made on the bot
-
