@@ -2,6 +2,10 @@
 This is an API wrapper for Loot Bot (https://telegra.ph/Guida-alle-LootBot-API-04-06)
 
 # Guide
+## PyPi
+`pip install LootBotApi`
+https://pypi.org/project/LootBotApi/
+## Clone the repo
 1. Clone the repository and put it in your code directory
 2. Import the library
 `from LootBotApi import LootBotApi`
