@@ -15,7 +15,7 @@ This means that the attributes of the result can either be accessed as dictionar
 ## Items
 * `get_items(rarity = None)` It returns all the items in the game, if rarity is passed it returns all the items of that rarity
 * `get_item(item)` It returns the info about a given item
-```
+``` python
 print(api.get_item("Meccanismo di Ferro").id) #363
 print(api.get_item(363).name) #Meccanismo di Ferro
 ```
@@ -30,7 +30,7 @@ print(api.get_item(363).name) #Meccanismo di Ferro
 * `get_crafts()` It returns all the crafts in the game
 * `get_craft_needed(item_id)` It returns the items requested to craft the item
 * `get_craft_used(item_id)` It returns the item that you can craft using the item
-```
+``` python
 items = api.get_craft_needed(363)
 for item in items:
   print(item.name)
