@@ -85,7 +85,7 @@ class LootBotApi:
         item_api = self.get_item(item)
         if type(item_api) is list:
             for sub_item in item_api:
-                if sub_item.name == oggetto:
+                if sub_item.name == item:
                     PC = sub_item.craft_pnt
         else:
             PC = item_api.craft_pnt
