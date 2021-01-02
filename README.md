@@ -60,11 +60,11 @@ for item in items:
 ## Custom Methods
 This methods are not natively implemented in the API but they are derived by them.
 
-* `get_total_craft_points(item)` It returns the total craft points that you will gaim to craft the item
+* `get_total_craft_points(item)` It returns the total craft points that you will get to craft the item
 ``` python
  print(api.get_total_craft_points("Ordigno Polverizzatore")) #113
 ```
-* `get_average_market_price(item)` It returns the average price of an item in the market as integer
+* `get_average_market_price(item)` It returns the average price of an item in the market as an integer
 ``` python
  print(api.get_average_market_price("Ferro")) #37394
 
