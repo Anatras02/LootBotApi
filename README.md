@@ -17,8 +17,8 @@ This means that the attributes of the result can either be accessed as dictionar
 * `get_items(rarity = None)` It returns all the items in the game, if rarity is passed it returns all the items of that rarity
 * `get_item(item)` It returns the info about a given item
 ``` python
-print(api.get_item("Meccanismo di Ferro").id) #363
-print(api.get_item(363).name) #Meccanismo di Ferro
+  print(api.get_item("Meccanismo di Ferro").id) #363
+  print(api.get_item(363).name) #Meccanismo di Ferro
 ```
 ### History
 * `get_history(place = "payments",limit = None,offset = None,fromPlayer = None,toPlayer = None,fromItem = None,toItem = None,both = None,fromPrice = None,toPrice = None,orderBy = "desc")` It returns the transactions with the specificied parameters
@@ -32,13 +32,13 @@ print(api.get_item(363).name) #Meccanismo di Ferro
 * `get_craft_needed(item_id)` It returns the items requested to craft the item
 * `get_craft_used(item_id)` It returns the item that you can craft using the item
 ``` python
-items = api.get_craft_needed(363)
-for item in items:
-  print(item.name)
+  items = api.get_craft_needed(363)
+  for item in items:
+    print(item.name)
 
-#Perno
-#Meccanismo di Legno
-#Ferro
+  #Perno
+  #Meccanismo di Legno
+  #Ferro
 ```
 
 ### Shops
@@ -61,7 +61,12 @@ for item in items:
 This methods are not natively implemented in the API but they are derived by them.
 
 * `get_total_craft_points(item)` It returns the total craft points that you will gaim to craft the item
-* `get_average_market_price(item)` It returns the average price of an item in the market
 ``` python
-print(api.get_total_craft_points("Ordigno Polverizzatore")) #113
+  print(api.get_total_craft_points("Ordigno Polverizzatore")) #113
 ```
+* `get_average_market_price(item)` It returns the average price of an item in the market as integer
+``` python
+  print(api.get_average_market_price("Ferro")) #37394
+
+```
+
