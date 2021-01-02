@@ -80,3 +80,26 @@ class LootBotApi:
 
     def get_crafts(self):
         return self.__request_url(f"{self.endpoint}/crafts/id")
+
+    def get_total_craft_points(self,item):
+        item_api = self.get_item(item)
+        if type(item_api) is list:
+            for sub_item in item_api:
+                if sub_item.name == oggetto:
+                    PC = sub_item.craft_pnt
+        else:
+            PC = item_api.craft_pnt
+
+        return PC
+
+    def get_average_market_price(self,item):
+        items_api = self.get_item(item)
+        if type(items_api) is list:
+            item = list(filter(lambda item_search: item_search.name == item, items_api))[0]
+        else:
+            item = items_api
+
+        item_name = item.name
+        item_base_price = item.value
+        prezzi = self.get_history(place="market_direct",fromItem=item_name,fromPrice=item_base_price+1)
+        return int(sum(prezzo.price for prezzo in prezzi) / len(prezzi))
