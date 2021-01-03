@@ -1,5 +1,7 @@
 import requests
 from munch import munchify
+import math
+from collections import Counter
 
 class Error500(Exception):
     pass
@@ -26,6 +28,15 @@ class LootBotApi:
 
     def get_item(self,item):
         return self.__request_url(f"{self.endpoint}/items/{item}")
+
+    def get_exact_item(self,item):
+        item_api = self.get_item(item)
+        if type(item_api) is list:
+            for sub_item in item_api:
+                if sub_item.name == item:
+                    return sub_item
+        else:
+            return item_api
 
     def get_history(self,place = "payments",limit = None,offset = None,fromPlayer = None,toPlayer = None,fromItem = None,toItem = None,both = None,fromPrice = None,toPrice = None,orderBy = "desc"):
         string = f"{self.endpoint}/history/{place}?"
@@ -82,24 +93,45 @@ class LootBotApi:
         return self.__request_url(f"{self.endpoint}/crafts/id")
 
     def get_total_craft_points(self,item):
-        item_api = self.get_item(item)
-        if type(item_api) is list:
-            for sub_item in item_api:
-                if sub_item.name == item:
-                    PC = sub_item.craft_pnt
-        else:
-            PC = item_api.craft_pnt
-
-        return PC
+        item = self.get_exact_item(item)
+        return item.craft_pnt
 
     def get_average_market_price(self,item):
-        items_api = self.get_item(item)
-        if type(items_api) is list:
-            item = list(filter(lambda item_search: item_search.name == item, items_api))[0]
-        else:
-            item = items_api
+        item = self.get_exact_item(item)
 
         item_name = item.name
         item_base_price = item.value
         prezzi = self.get_history(place="market_direct",fromItem=item_name,fromPrice=item_base_price+1)
         return int(sum(prezzo.price for prezzo in prezzi) / len(prezzi))
+
+    def get_crafting_steps(self,item,num_elements=1):
+        def get_crafting(elemento):
+            elements_needed = self.get_craft_needed(elemento)
+            steps_list = [self.get_item(elemento).name]
+            for element_needed in elements_needed:
+                if element_needed.craftable: steps_list.extend(get_crafting(element_needed.id))
+            return steps_list
+
+        
+        element = self.get_exact_item(item).id
+        craft_list = get_crafting(element)
+        craft_list.reverse()
+
+        results = []
+        #A dict that contains each element in the list and how many times it's repeated
+        counter = {x:craft_list.count(x) for x in craft_list}
+
+        for craft in counter:
+            num_elements_tmp = num_elements * counter[craft]
+
+            for i in range(math.ceil(num_elements_tmp / 3)):
+                if num_elements_tmp <= 3:
+                    num_steps = num_elements_tmp
+                else:
+                    num_steps = 3
+                    num_elements_tmp -= 3
+
+                dict_craft = {craft:num_steps}
+                results.append(dict_craft)
+
+        return results
