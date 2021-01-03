@@ -79,7 +79,7 @@ Munch({'id': 1, 'name': 'Carta', 'rarity': 'C', 'rarity_name': 'Comuni', 'value'
  print(api.get_total_craft_points("Ordigno Polverizzatore")) #113
 ```
 * `get_crafting_steps(item,num_elements=1)` It returns as a list of dicts all the steps to craft a certain element (and in a certain quantity)
-```
+``` python
 steps = api.get_crafting_steps("Scudo Punta Doppia",5)
 for step in steps:
     for elemento in step:
