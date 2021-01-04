@@ -5,3 +5,4 @@ __license__ = 'MIT License'
 __copyright__ = 'Copyright 2020 Anatras02'
 
 from .LootBotApi import LootBotApi
+from .LootBotApi import Error500
