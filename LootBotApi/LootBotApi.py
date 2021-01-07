@@ -1,7 +1,8 @@
 import requests
 from munch import munchify
 import math
-from collections import Counter
+import json
+from pathlib import Path
 
 class Error500(Exception):
     pass
@@ -11,6 +12,8 @@ class LootBotApi:
     def __init__(self,token):
         self.token = token
         self.endpoint = f"http://fenixweb.net:3300/api/v2/{self.token}"
+        self.items = self.get_items()
+        self.craft_needed = dict()
 
     def __request_url(self,url):
         response_json = requests.get(url).json()
@@ -21,13 +24,18 @@ class LootBotApi:
         return munchify(response_json["res"])
 
     def get_items(self,rarity = None):
-        if rarità != None:
+        if rarity != None:
             return self.get_item(rarity)
 
         return self.__request_url(f"{self.endpoint}/items")
 
     def get_item(self,item):
-        return self.__request_url(f"{self.endpoint}/items/{item}")
+        item_return = list(filter(lambda item_search: item_search.name == item, self.items))
+        if item_return == []:
+            item_return = list(filter(lambda item_search: item_search.rarity == item, self.items))
+            if item_return == []:
+                item_return = self.__request_url(f"{self.endpoint}/items/{item}")
+        return item_return
 
     def get_exact_item(self,item):
         item_api = self.get_item(item)
@@ -84,7 +92,13 @@ class LootBotApi:
         return self.__request_url(f"{self.endpoint}/shop/{shop}")
 
     def get_craft_needed(self,item_id):
-        return self.__request_url(f"{self.endpoint}/crafts/{item_id}/needed")
+        try:
+            craft_needed = self.craft_needed[item_id]
+        except KeyError:
+            craft_needed = self.__request_url(f"{self.endpoint}/crafts/{item_id}/needed")
+            self.craft_needed[item_id] = craft_needed
+
+        return craft_needed
 
     def get_craft_used(self,item_id):
         return self.__request_url(f"{self.endpoint}/crafts/{item_id}/used")
@@ -112,7 +126,6 @@ class LootBotApi:
                 if element_needed.craftable: steps_list.extend(get_crafting(element_needed.id))
             return steps_list
 
-        
         element = self.get_exact_item(item).id
         craft_list = get_crafting(element)
         craft_list.reverse()
