@@ -1,2 +1,5 @@
 index.py
 config.py
+build/*
+dist/*
+LootBotApi.egg-info/*
