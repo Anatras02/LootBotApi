@@ -103,7 +103,7 @@ class LootBotApi:
     def get_craft_needed_base(self,item_id):
         craft_needed = self.get_craft_needed(item_id)
         return list(filter(lambda item : not item.craftable,craft_needed))
-        
+
     def get_craft_used(self,item_id):
         return self.__request_url(f"{self.endpoint}/crafts/{item_id}/used")
 

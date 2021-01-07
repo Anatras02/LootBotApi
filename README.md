@@ -45,7 +45,7 @@ for item in items:
 * `get_shop(shop)` It returns the infos about the shop
 
 ### Cards
-* `get_crafts()` It returns all the cards in the game
+* `get_cards()` It returns all the cards in the game
 
 ### Global
 * `get_global()` It returns the progress of the current global challenge, it's updated every hour
@@ -77,6 +77,18 @@ Crea Scudo Punta Singola,2
 Crea Scudo Punta Doppia,3
 Crea Scudo Punta Doppia,2
 """
+```
+
+* `get_craft_total_needed_base_items(item,num_elements=1)` It returns a dict containing the name of all the base items needed to craft a certain element (and in a certain quantity)
+``` python
+print(api.get_craft_total_needed_base_items("Scudo Punta Tripla",2))
+#{'Ambra Nera': 2, 'Materiale Affilante': 2, 'Manico': 2, 'Scaglia di Rubino': 2, 'Metallo': 2, 'Scheggia': 2, 'Nastro Adesivo': 2}
+```
+
+* `get_craft_needed_base(item_id)`  It returns a list of base elements needed to craft the item
+``` python
+print(api.get_craft_needed_base(api.get_exact_item("Scudo Punta Tripla").id))
+#[Munch({'id': 80, 'name': 'Ambra Nera', 'rarity': 'UR', 'craftable': 0}), Munch({'id': 127, 'name': 'Materiale Affilante', 'rarity': 'UR', 'craftable': 0})]
 ```
 
 ### Market
