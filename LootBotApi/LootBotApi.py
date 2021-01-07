@@ -1,8 +1,7 @@
 import requests
 from munch import munchify
 import math
-import json
-from pathlib import Path
+
 
 class Error500(Exception):
     pass
@@ -97,8 +96,9 @@ class LootBotApi:
         except KeyError:
             craft_needed = self.__request_url(f"{self.endpoint}/crafts/{item_id}/needed")
             self.craft_needed[item_id] = craft_needed
-
         return craft_needed
+
+
 
     def get_craft_needed_base(self,item_id):
         craft_needed = self.get_craft_needed(item_id)
