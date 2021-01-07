@@ -1,7 +1,8 @@
 import requests
 from munch import munchify
 import math
-
+import json
+from pathlib import Path
 
 class Error500(Exception):
     pass
@@ -96,9 +97,8 @@ class LootBotApi:
         except KeyError:
             craft_needed = self.__request_url(f"{self.endpoint}/crafts/{item_id}/needed")
             self.craft_needed[item_id] = craft_needed
+
         return craft_needed
-
-
 
     def get_craft_needed_base(self,item_id):
         craft_needed = self.get_craft_needed(item_id)
@@ -139,7 +139,12 @@ class LootBotApi:
         counter = {x:craft_list.count(x) for x in craft_list}
 
         for craft in counter:
-            num_elements_tmp = num_elements * counter[craft]
+            try:
+                inventory_count = inventory[craft.lower()]
+            except KeyError:
+                inventory_count = 0
+
+            num_elements_tmp = (num_elements * counter[craft]) - inventory_count
 
             for i in range(math.ceil(num_elements_tmp / 3)):
                 if num_elements_tmp <= 3:
@@ -153,16 +158,19 @@ class LootBotApi:
 
         return results
 
-        def get_craft_total_needed_base_items(self,item,num_elements=1):
+    def get_craft_total_needed_base_items(self,item,num_elements=1):
         def get_crafting(elemento):
             elements_needed = self.get_craft_needed(elemento)
-            base_elements = self.get_craft_needed_base(elemento)
+            base_elements = [base.name for base in self.get_craft_needed_base(elemento)]
 
             for element_needed in elements_needed:
                 if element_needed.craftable:
                      base_elements.extend(get_crafting(element_needed.id))
-
             return base_elements
 
-        # TODO: Aggiungere il numero degli elementi mancanti
-        return get_crafting(self.get_exact_item(item).id)
+        craft_list = get_crafting(self.get_exact_item(item).id)
+        craft_list = {x:craft_list.count(x) for x in craft_list}
+        if num_elements != 1:
+            for craft in craft_list:
+                craft_list[craft] *= num_elements
+        return craft_list
