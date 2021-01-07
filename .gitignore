@@ -3,3 +3,4 @@ config.py
 build/*
 dist/*
 LootBotApi.egg-info/*
+__pycache__

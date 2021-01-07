@@ -2,6 +2,7 @@ import requests
 from munch import munchify
 import math
 
+
 class Error500(Exception):
     pass
 
@@ -95,9 +96,14 @@ class LootBotApi:
         except KeyError:
             craft_needed = self.__request_url(f"{self.endpoint}/crafts/{item_id}/needed")
             self.craft_needed[item_id] = craft_needed
-
         return craft_needed
 
+
+
+    def get_craft_needed_base(self,item_id):
+        craft_needed = self.get_craft_needed(item_id)
+        return list(filter(lambda item : not item.craftable,craft_needed))
+        
     def get_craft_used(self,item_id):
         return self.__request_url(f"{self.endpoint}/crafts/{item_id}/used")
 
@@ -146,3 +152,17 @@ class LootBotApi:
                 results.append(dict_craft)
 
         return results
+
+        def get_craft_total_needed_base_items(self,item,num_elements=1):
+        def get_crafting(elemento):
+            elements_needed = self.get_craft_needed(elemento)
+            base_elements = self.get_craft_needed_base(elemento)
+
+            for element_needed in elements_needed:
+                if element_needed.craftable:
+                     base_elements.extend(get_crafting(element_needed.id))
+
+            return base_elements
+
+        # TODO: Aggiungere il numero degli elementi mancanti
+        return get_crafting(self.get_exact_item(item).id)
