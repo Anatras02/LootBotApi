@@ -1,8 +1,6 @@
 import requests
 from munch import munchify
 import math
-import json
-from pathlib import Path
 
 class Error500(Exception):
     pass
