@@ -22,6 +22,15 @@ class LootBotApi:
 
         return munchify(response_json["res"])
 
+    def __lower_dict_keys(self,dict):
+        result = {}
+        for key, value in dict.items():
+            try:
+                result[key.lower()] = value
+            except AttributeError:
+                result[key] = value
+        return result
+
     def get_items(self,rarity = None):
         if rarity != None:
             return self.get_item(rarity)
@@ -122,7 +131,7 @@ class LootBotApi:
         prezzi = self.get_history(place="market_direct",fromItem=item_name,fromPrice=item_base_price+1)
         return int(sum(prezzo.price for prezzo in prezzi) / len(prezzi))
 
-    def get_crafting_steps(self,item,num_elements=1):
+    def get_crafting_steps(self,item,num_elements=1,inventory):
         def get_crafting(elemento):
             elements_needed = self.get_craft_needed(elemento)
             steps_list = [self.get_item(elemento).name]
@@ -153,7 +162,7 @@ class LootBotApi:
 
         return results
 
-        def get_craft_total_needed_base_items(self,item,num_elements=1):
+    def get_craft_total_needed_base_items(self,item,num_elements=1,inventory=dict()):
         def get_crafting(elemento):
             elements_needed = self.get_craft_needed(elemento)
             base_elements = self.get_craft_needed_base(elemento)
@@ -164,5 +173,18 @@ class LootBotApi:
 
             return base_elements
 
-        # TODO: Aggiungere il numero degli elementi mancanti
-        return get_crafting(self.get_exact_item(item).id)
+        craft_list = get_crafting(self.get_exact_item(item).id)
+        craft_list = {x:craft_list.count(x) for x in craft_list}
+        delete_keys = list()
+        for craft in craft_list:
+            craft_list[craft] *= num_elements
+            try:
+                craft_list[craft] -= inventory[craft]
+                if craft_list[craft] <= 0: delete_keys.append(craft)
+            except KeyError:
+                continue
+
+        for delete in delete_keys:
+            del craft_list[delete]
+
+        return craft_list
