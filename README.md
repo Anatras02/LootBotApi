@@ -61,25 +61,50 @@ for item in items:
 These methods are not natively implemented in the API but they are derived by them.
 
 ### Crafting
+#### Meaning of inventory
+The inventory paramater excepts a dict structured like this:
+``` python
+{
+  item1: quantity,
+  item2: quantity,
+  .,
+  .,
+  .,
+  itemN: quantity
+}
+```
+
 * `get_total_craft_points(item)` It returns the total craft points that you will get to craft the item
 ``` python
  print(api.get_total_craft_points("Ordigno Polverizzatore")) #113
 ```
-* `get_crafting_steps(item,num_elements=1)` It returns as a list of dicts all the steps to craft a certain element (and in a certain quantity)
+* `get_crafting_steps(item,num_elements=1,inventory=dict())` It returns as a list of dicts all the steps to craft a certain element (and in a certain quantity). If the inventory is passed the items already owned will not be listed.
 ``` python
+def print_steps(steps):
+  for step in steps:
+      for elemento in step:
+          print(f"Crea {elemento},{step[elemento]}")
+
 steps = api.get_crafting_steps("Scudo Punta Doppia",5)
-for step in steps:
-    for elemento in step:
-        print(f"Crea {elemento},{step[elemento]}")
+print_steps(steps)
 """
 Crea Scudo Punta Singola,3
 Crea Scudo Punta Singola,2
 Crea Scudo Punta Doppia,3
 Crea Scudo Punta Doppia,2
 """
+
+inventory = {"Scudo Punta Singola":2}
+steps = api.get_crafting_steps("Scudo Punta Doppia",5,inventory=inventory)
+print_steps(steps)
+"""
+Crea Scudo Punta Singola,3
+Crea Scudo Punta Doppia,3
+Crea Scudo Punta Doppia,2
+"""
 ```
 
-* `get_craft_total_needed_base_items(item,num_elements=1)` It returns a dict containing the name of all the base items needed to craft a certain element (and in a certain quantity)
+* `get_craft_total_needed_base_items(item,num_elements=1,inventory=dict())` It returns a dict containing the name of all the base items needed to craft a certain element (and in a certain quantity). If the inventory is passed the items already owned will not be listed.
 ``` python
 print(api.get_craft_total_needed_base_items("Scudo Punta Tripla",2))
 #{'Ambra Nera': 2, 'Materiale Affilante': 2, 'Manico': 2, 'Scaglia di Rubino': 2, 'Metallo': 2, 'Scheggia': 2, 'Nastro Adesivo': 2}

@@ -1,7 +1,7 @@
 import requests
 from munch import munchify
 import math
-
+from copy import deepcopy
 
 class Error500(Exception):
     pass
@@ -131,16 +131,27 @@ class LootBotApi:
         prezzi = self.get_history(place="market_direct",fromItem=item_name,fromPrice=item_base_price+1)
         return int(sum(prezzo.price for prezzo in prezzi) / len(prezzi))
 
-    def get_crafting_steps(self,item,num_elements=1,inventory):
-        def get_crafting(elemento):
+    def get_crafting_steps(self,item,num_elements=1,inventory=dict()):
+        def get_crafting(elemento,num_elements,inventory):
             elements_needed = self.get_craft_needed(elemento)
-            steps_list = [self.get_item(elemento).name]
+            element_name = self.get_exact_item(elemento).name
+            try:
+                item_quantity = inventory[element_name]
+                inventory[element_name] -= 1
+            except KeyError:
+                item_quantity = 0
+
+            if item_quantity >= num_elements:
+                steps_list = []
+            else:
+                steps_list = [element_name]
+
             for element_needed in elements_needed:
-                if element_needed.craftable: steps_list.extend(get_crafting(element_needed.id))
+                if element_needed.craftable: steps_list.extend(get_crafting(element_needed.id,num_elements,inventory))
             return steps_list
 
         element = self.get_exact_item(item).id
-        craft_list = get_crafting(element)
+        craft_list = get_crafting(element,num_elements,deepcopy(inventory))
         craft_list.reverse()
 
         results = []
@@ -148,7 +159,12 @@ class LootBotApi:
         counter = {x:craft_list.count(x) for x in craft_list}
 
         for craft in counter:
-            num_elements_tmp = num_elements * counter[craft]
+            try:
+                item_quantity = inventory[craft]
+            except KeyError:
+                item_quantity = 0
+
+            num_elements_tmp = num_elements * counter[craft] - item_quantity
 
             for i in range(math.ceil(num_elements_tmp / 3)):
                 if num_elements_tmp <= 3:
