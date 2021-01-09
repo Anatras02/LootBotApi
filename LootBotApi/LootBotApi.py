@@ -1,8 +1,7 @@
 import requests
 from munch import munchify
 import math
-import json
-from pathlib import Path
+from copy import deepcopy
 
 class Error500(Exception):
     pass
@@ -22,6 +21,15 @@ class LootBotApi:
             raise Error500(response_json["error"])
 
         return munchify(response_json["res"])
+
+    def __lower_dict_keys(self,dict):
+        result = {}
+        for key, value in dict.items():
+            try:
+                result[key.lower()] = value
+            except AttributeError:
+                result[key] = value
+        return result
 
     def get_items(self,rarity = None):
         if rarity != None:
@@ -122,16 +130,27 @@ class LootBotApi:
         prezzi = self.get_history(place="market_direct",fromItem=item_name,fromPrice=item_base_price+1)
         return int(sum(prezzo.price for prezzo in prezzi) / len(prezzi))
 
-    def get_crafting_steps(self,item,num_elements=1):
-        def get_crafting(elemento):
+    def get_crafting_steps(self,item,num_elements=1,inventory=dict()):
+        def get_crafting(elemento,num_elements,inventory):
             elements_needed = self.get_craft_needed(elemento)
-            steps_list = [self.get_item(elemento).name]
+            element_name = self.get_exact_item(elemento).name
+            try:
+                item_quantity = inventory[element_name]
+                inventory[element_name] -= 1
+            except KeyError:
+                item_quantity = 0
+
+            if item_quantity >= num_elements:
+                steps_list = []
+            else:
+                steps_list = [element_name]
+
             for element_needed in elements_needed:
-                if element_needed.craftable: steps_list.extend(get_crafting(element_needed.id))
+                if element_needed.craftable: steps_list.extend(get_crafting(element_needed.id,num_elements,inventory))
             return steps_list
 
         element = self.get_exact_item(item).id
-        craft_list = get_crafting(element)
+        craft_list = get_crafting(element,num_elements,deepcopy(inventory))
         craft_list.reverse()
 
         results = []
@@ -140,11 +159,11 @@ class LootBotApi:
 
         for craft in counter:
             try:
-                inventory_count = inventory[craft.lower()]
+                item_quantity = inventory[craft]
             except KeyError:
-                inventory_count = 0
+                item_quantity = 0
 
-            num_elements_tmp = (num_elements * counter[craft]) - inventory_count
+            num_elements_tmp = num_elements * counter[craft] - item_quantity
 
             for i in range(math.ceil(num_elements_tmp / 3)):
                 if num_elements_tmp <= 3:
@@ -158,7 +177,7 @@ class LootBotApi:
 
         return results
 
-    def get_craft_total_needed_base_items(self,item,num_elements=1):
+    def get_craft_total_needed_base_items(self,item,num_elements=1,inventory=dict()):
         def get_crafting(elemento):
             elements_needed = self.get_craft_needed(elemento)
             base_elements = [base.name for base in self.get_craft_needed_base(elemento)]
@@ -170,7 +189,14 @@ class LootBotApi:
 
         craft_list = get_crafting(self.get_exact_item(item).id)
         craft_list = {x:craft_list.count(x) for x in craft_list}
-        if num_elements != 1:
-            for craft in craft_list:
-                craft_list[craft] *= num_elements
-        return craft_list
+        delete_keys = list()
+        for craft in craft_list:
+            craft_list[craft] *= num_elements
+            try:
+                craft_list[craft] -= inventory[craft]
+                if craft_list[craft] <= 0: delete_keys.append(craft)
+            except KeyError:
+                continue
+
+        for delete in delete_keys:
+            del craft_list[delete]
