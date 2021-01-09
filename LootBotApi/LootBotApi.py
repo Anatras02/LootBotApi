@@ -105,9 +105,8 @@ class LootBotApi:
         except KeyError:
             craft_needed = self.__request_url(f"{self.endpoint}/crafts/{item_id}/needed")
             self.craft_needed[item_id] = craft_needed
+
         return craft_needed
-
-
 
     def get_craft_needed_base(self,item_id):
         craft_needed = self.get_craft_needed(item_id)
@@ -181,12 +180,11 @@ class LootBotApi:
     def get_craft_total_needed_base_items(self,item,num_elements=1,inventory=dict()):
         def get_crafting(elemento):
             elements_needed = self.get_craft_needed(elemento)
-            base_elements = self.get_craft_needed_base(elemento)
+            base_elements = [base.name for base in self.get_craft_needed_base(elemento)]
 
             for element_needed in elements_needed:
                 if element_needed.craftable:
                      base_elements.extend(get_crafting(element_needed.id))
-
             return base_elements
 
         craft_list = get_crafting(self.get_exact_item(item).id)
@@ -202,5 +200,3 @@ class LootBotApi:
 
         for delete in delete_keys:
             del craft_list[delete]
-
-        return craft_list
