@@ -13,6 +13,7 @@ class LootBotApi:
         self.endpoint = f"http://fenixweb.net:3300/api/v2/{self.token}"
         self.items = self.get_items()
         self.craft_needed = dict()
+        self.INVENTORY_SYNTAX_ERROR = "The inventory should be in the format {'element':quantity}"
 
     def __request_url(self,url):
         response_json = requests.get(url).json()
@@ -135,9 +136,14 @@ class LootBotApi:
             elements_needed = self.get_craft_needed(elemento)
             element_name = self.get_exact_item(elemento).name
             try:
-                item_quantity = inventory[element_name]
-                inventory[element_name] -= 1
-            except KeyError:
+                element_name_tmp = element_name.lower()
+                try:
+                    inventory[element_name_tmp] = int(inventory[element_name_tmp])
+                    item_quantity = inventory[element_name_tmp]
+                    inventory[element_name_tmp] -= 1
+                except ValueError:
+                    raise SyntaxError(INVENTORY_SYNTAX_ERROR)
+            except KeyError as e:
                 item_quantity = 0
 
             if item_quantity >= num_elements:
@@ -149,6 +155,7 @@ class LootBotApi:
                 if element_needed.craftable: steps_list.extend(get_crafting(element_needed.id,num_elements,inventory))
             return steps_list
 
+        inventory = self.__lower_dict_keys(inventory)
         element = self.get_exact_item(item).id
         craft_list = get_crafting(element,num_elements,deepcopy(inventory))
         craft_list.reverse()
@@ -156,10 +163,9 @@ class LootBotApi:
         results = []
         #A dict that contains each element in the list and how many times it's repeated
         counter = {x:craft_list.count(x) for x in craft_list}
-
         for craft in counter:
             try:
-                item_quantity = inventory[craft]
+                item_quantity = int(inventory[craft.lower()])
             except KeyError:
                 item_quantity = 0
 
@@ -187,16 +193,23 @@ class LootBotApi:
                      base_elements.extend(get_crafting(element_needed.id))
             return base_elements
 
-        craft_list = get_crafting(self.get_exact_item(item).id)
-        craft_list = {x:craft_list.count(x) for x in craft_list}
+        inventory = self.__lower_dict_keys(inventory)
+        base_list = get_crafting(self.get_exact_item(item).id)
+        base_list = {x:base_list.count(x) for x in base_list}
         delete_keys = list()
-        for craft in craft_list:
-            craft_list[craft] *= num_elements
+        for craft in base_list:
+            base_list[craft] *= num_elements
             try:
-                craft_list[craft] -= inventory[craft]
-                if craft_list[craft] <= 0: delete_keys.append(craft)
+                try:
+                    num_items = int(inventory[craft.lower()])
+                except ValueError:
+                    raise SyntaxError(INVENTORY_SYNTAX_ERROR)
+                base_list[craft] -= num_items
+                if base_list[craft] <= 0: delete_keys.append(craft)
             except KeyError:
                 continue
 
         for delete in delete_keys:
-            del craft_list[delete]
+            del base_list[delete]
+
+        return base_list

@@ -11,7 +11,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="LootBotApi",
-    version="0.5.1",
+    version="0.5.3",
     description="API wrapper for Loot Bot",
     long_description=README,
     long_description_content_type="text/markdown",
