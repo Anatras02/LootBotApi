@@ -2,5 +2,6 @@ index.py
 config.py
 build/*
 dist/*
+*.json
 LootBotApi.egg-info/*
 __pycache__
