@@ -230,32 +230,25 @@ class LootBotApi:
 
 
     def get_craft_total_needed_base_items(self,item,num_elements=1,inventory=dict()):
-        def get_crafting(element):
-            elements_needed = self.get_craft_needed(element)
-            base_elements = [base.name for base in self.get_craft_needed_base(element)]
-
-            for element_needed in elements_needed:
-                if element_needed.craftable:
-                     base_elements.extend(get_crafting(element_needed.id))
-            return base_elements
-
+        steps = self.get_crafting_steps(item,num_elements,inventory)
+        base_list = list()
+        base_dict = dict()
         inventory = self.__lower_dict_keys(inventory)
-        base_list = get_crafting(self.get_exact_item(item).id)
-        base_list = {x:base_list.count(x) for x in base_list}
-        delete_keys = list()
-        for craft in base_list:
-            base_list[craft] *= num_elements
+
+        for step in steps:
+            for item in step:
+                item_api = self.get_exact_item(item)
+                base_step_list = self.get_craft_needed(item_api.id)
+                base_step_list = list(filter(lambda x: not x.craftable,base_step_list))
+                base_step_list = [base_item.name for base_item in base_step_list]
+                base_list.extend(base_step_list*step[item])
+
+        for x in base_list:
             try:
-                try:
-                    num_items = int(inventory[craft.lower()])
-                except ValueError:
-                    raise SyntaxError(INVENTORY_SYNTAX_ERROR)
-                base_list[craft] -= num_items
-                if base_list[craft] <= 0: delete_keys.append(craft)
+                inventory_count = int(inventory[x.lower()])
             except KeyError:
-                continue
+                inventory_count = 0
+            base_dict[x] = base_list.count(x) - inventory_count
+            if base_dict[x] <= 0: del base_dict[x]
 
-        for delete in delete_keys:
-            del base_list[delete]
-
-        return base_list
+        return base_dict
