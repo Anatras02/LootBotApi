@@ -212,4 +212,18 @@ class LootBotApi:
         for delete in delete_keys:
             del base_list[delete]
 
-        return base_list
+        return base_dict
+
+    def get_chest_price(self,item,num_elements=1):
+        if num_elements <= 0:
+            raise LootBotApiError("The number of elements must be >= 0")
+        base_items = self.get_craft_total_needed_base_items(item)
+        chest_price = 0
+        for item in base_items:
+            item_api = self.get_exact_item(item)
+            rarity = item_api.rarity
+            try:
+                chest_price += self.chest_prices[rarity] * base_items[item]
+            except KeyError:
+                continue
+        return chest_price*num_elements
