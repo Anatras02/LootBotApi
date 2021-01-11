@@ -8,6 +8,8 @@ import json
 class Error500(Exception):
     pass
 
+class LootBotApiError(Exception):
+    pass
 
 class LootBotApi:
     def __init__(self,token):
@@ -16,6 +18,7 @@ class LootBotApi:
         self.items = self.get_items()
         self.craft_needed = self.__load_json("craft_needed.json")
         self.INVENTORY_SYNTAX_ERROR = "The inventory should be in the format {'element':quantity}"
+        self.chest_prices = {"C":2250,"NC":4500,"R":9000,"UR":13500,"L":27000,"E":45000}
 
     def __request_url(self,url):
         response_json = requests.get(url).json()
@@ -131,7 +134,7 @@ class LootBotApi:
             craft_needed = self.craft_needed[item_id]
         except KeyError:
             craft_needed = self.__request_url(f"{self.endpoint}/crafts/{item_id}/needed")
-            self.craft_needed[item_id] = craft_needed
+            self.craft_needed[str(item_id)] = craft_needed
             self.__save_dict("craft_needed.json",self.craft_needed)
 
         return craft_needed
@@ -194,6 +197,8 @@ class LootBotApi:
 
             return steps_list
 
+        if type(inventory) is not dict:
+            raise LootBotApiError("The inventory must be a dict")
 
         inventory = self.__lower_dict_keys(inventory)
         element = self.get_exact_item(item).id

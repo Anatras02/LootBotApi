@@ -6,3 +6,4 @@ __copyright__ = 'Copyright 2020 Anatras02'
 
 from .LootBotApi import LootBotApi
 from .LootBotApi import Error500
+from .LootBotApi import LootBotApiError
