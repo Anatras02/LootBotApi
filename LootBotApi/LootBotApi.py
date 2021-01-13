@@ -131,7 +131,7 @@ class LootBotApi:
 
     def get_craft_needed(self,item_id):
         try:
-            craft_needed = self.craft_needed[str(item_id)]
+            craft_needed = munchify(self.craft_needed[str(item_id)])
         except KeyError:
             craft_needed = self.__request_url(f"{self.endpoint}/crafts/{item_id}/needed")
             self.craft_needed[str(item_id)] = craft_needed
